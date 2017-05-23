@@ -10,6 +10,7 @@ import socket
 import sys
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import numpy as np
 import GeoIP
 
@@ -32,13 +33,39 @@ def plot_connections(positions):
     fig = plt.figure(figsize=(16, 12))
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.coastlines()
+    ax.set_global()
+
+    countries = cfeature.NaturalEarthFeature(
+        category='cultural',
+        name='admin_0_countries',
+        scale='50m',
+        facecolor='none')
+
+    states_provinces = cfeature.NaturalEarthFeature(
+        category='cultural',
+        name='admin_1_states_provinces_lines',
+        scale='50m',
+        facecolor='none')
+
+    SOURCE = 'Natural Earth'
+    LICENSE = 'public domain'
+
+    ax.add_feature(cfeature.LAND)
+    ax.add_feature(cfeature.OCEAN)
+    ax.add_feature(cfeature.LAKES)
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(countries, edgecolor='gray')
+    ax.add_feature(states_provinces, edgecolor='gray')
+
+    ax.gridlines(draw_labels=True)
 
     ax.scatter(positions['lon'],
                positions['lat'],
                marker='o',
-               transform=ccrs.PlateCarree())
-    ax.set_global()
-    ax.gridlines(draw_labels=True)
+               color='green',
+               transform=ccrs.PlateCarree(),
+               zorder=20)
+
     ax.set_title(socket.gethostname() + ' connections',
                  fontsize='xx-large')
     fig.savefig('connection_map.png', bbox_inches='tight')
