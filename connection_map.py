@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Periodically get a list of IP Connections and map them out.
+Get a list of IP Connections and map them out.
 
 Some code from the cartopy documentation.
 http://scitools.org.uk/cartopy/docs/latest/
@@ -75,12 +75,13 @@ def plot_connections(positions):
 
     ax.gridlines(draw_labels=True)
 
-    ax.scatter(positions['lon'],
-               positions['lat'],
-               marker='o',
-               color='green',
-               transform=ccrs.PlateCarree(),
-               zorder=20)
+    if positions.shape:
+        ax.scatter(positions['lon'],
+                   positions['lat'],
+                   marker='o',
+                   color='green',
+                   transform=ccrs.PlateCarree(),
+                   zorder=20)
 
     ax.set_title(socket.gethostname() + ' connections',
                  fontsize='xx-large')
@@ -116,8 +117,11 @@ def main():
         raddr = conn[-1].split(':')[0]
 
         gir = gi.record_by_addr(raddr)
-        positions.append((gir['latitude'],
-                          gir['longitude']))
+        try:
+            positions.append((gir['latitude'],
+                              gir['longitude']))
+        except TypeError:
+            sys.stdout.write('No position for ' + raddr + '\n')
 
     positions = np.array(positions,
                          dtype=[('lat', float),
