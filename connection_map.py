@@ -75,7 +75,7 @@ def plot_connections(positions):
 
     ax.gridlines(draw_labels=True)
 
-    if positions.shape:
+    if len(positions):
         ax.scatter(positions['lon'],
                    positions['lat'],
                    marker='o',
