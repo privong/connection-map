@@ -135,6 +135,9 @@ def main():
             continue
         raddr = conn[-1].split(':')[0]
 
+        if checkLocal(raddr):
+            continue
+
         gir = gi.record_by_addr(raddr)
         try:
             positions.append((gir['latitude'],
