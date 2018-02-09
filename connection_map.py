@@ -5,7 +5,7 @@ Get a list of IP Connections and map them out.
 Some code from the cartopy documentation.
 http://scitools.org.uk/cartopy/docs/latest/
 
-Other code Copyright 2017 George C. Privon
+Other code Copyright 2017-2018 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -86,6 +86,25 @@ def plot_connections(positions):
     ax.set_title(socket.gethostname() + ' connections',
                  fontsize='xx-large')
     fig.savefig('connection_map.png', bbox_inches='tight')
+
+
+def checkLocal(IP):
+    """
+    Check to see if the IP address is in the IPv4 private blocks.
+    Returns True if the address is local.
+
+    """
+
+    ips = IP.split('.')
+
+    if int(ips[0]) == 10:
+        return True
+    elif int(ips[0]) == 192 and int(ips[1]) == 168:
+        return True
+    elif int(ips[0]) == 172 and (int(ips[1]) >= 16 and int(ips[1]) <= 31):
+        return True
+
+    return False
 
 
 def main():
