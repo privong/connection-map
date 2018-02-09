@@ -24,11 +24,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 import socket
 import sys
+import argparse
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
 import GeoIP
+
+
+def getArgs():
+    """
+    Command line arguments
+    """
+
+    parser=argparse.ArgumentParser(description="Get open connections, \
+geolocate IP addresses, and make a map of the connection endpoints.")
+
+    parser.add_argument('-4', '--ipv4', default=False, action='store_true',
+                        help="Geolocate IPv4 connections.")
+    parser.add_argument('-6', '--ipv6', default=False, action='store_true',
+                        help="Geolocate IPv6 connections.")
+
+    args = parser.parse_args()
+
+    if not args.ipv4 and not args.ipv6:
+        # if nothing was specified, default to IPv4 only
+        args.ipv4 = True
+
+    return(args)
 
 
 def init():
@@ -111,6 +134,8 @@ def main():
     """
     top-level routine
     """
+
+    args = getArgs()
 
     gi = init()
 
