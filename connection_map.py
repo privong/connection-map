@@ -55,12 +55,15 @@ geolocate IP addresses, and make a map of the connection endpoints.")
     return args
 
 
-def init():
+def init(ip):
     """
     Initialiation routine
     """
 
-    gi = GeoIP.open("/usr/share/GeoIP/GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
+    if ip == 4:
+        gi = GeoIP.open("/usr/share/GeoIP/GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
+    elif ip == 6:
+        gi = GeoIP.open("/usr/share/GeoIP/GeoIPCityv6.dat", GeoIP.GEOIP_STANDARD)
 
     return gi
 
