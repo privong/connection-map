@@ -125,6 +125,8 @@ def checkLocal(IP, iptype):
     """
 
     if iptype == 4:
+        if IP == '127.0.0.1':
+            return True
         ips = IP.split('.')
 
         if int(ips[0]) == 10:
