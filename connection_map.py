@@ -99,16 +99,18 @@ def plot_connections(positions):
 
     ax.gridlines(draw_labels=True)
 
-    if len(positions):
-        ax.scatter(positions['lon'],
-                   positions['lat'],
+    for ip in np.unique(positions['ip']):
+        valid = positions[ip] == ip
+        ax.scatter(positions['lon'][valid],
+                   positions['lat'][valid],
                    marker='o',
-                   color='green',
                    transform=ccrs.PlateCarree(),
-                   zorder=20)
+                   zorder=20,
+                   label='IPv{0:1.0f}'.format(ip))
 
     ax.set_title(socket.gethostname() + ' connections',
                  fontsize='xx-large')
+    ax.legend(loc='best')
     fig.savefig('connection_map.png', bbox_inches='tight')
 
 
