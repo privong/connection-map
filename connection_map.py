@@ -63,6 +63,7 @@ def init(ip):
     if ip == 4:
         gi = GeoIP.open("/usr/share/GeoIP/GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
     elif ip == 6:
+        # FIXME: this doesn't work for IPv6
         gi = GeoIP.open("/usr/share/GeoIP/GeoIPCityv6.dat", GeoIP.GEOIP_STANDARD)
 
     return gi
