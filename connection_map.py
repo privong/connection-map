@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
-import GeoIP
+import geoip2.database as ipdb
 
 
 def getArgs():
@@ -61,10 +61,10 @@ def init(ip):
     """
 
     if ip == 4:
-        gi = GeoIP.open("/usr/share/GeoIP/GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
+        gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
     elif ip == 6:
         # FIXME: this doesn't work for IPv6
-        gi = GeoIP.open("/usr/share/GeoIP/GeoIPCityv6.dat", GeoIP.GEOIP_STANDARD)
+        gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
 
     return gi
 
@@ -184,10 +184,13 @@ def main():
             if checkLocal(raddr, ip):
                 continue
 
-            gir = gi.record_by_addr(raddr)
             try:
-                positions.append((gir['latitude'],
-                                  gir['longitude'],
+                gir = gi.city(raddr)
+            except:
+                sys.stderr.write(raddr + " not found. skipping.\n")
+            try:
+                positions.append((gir.location.latitude,
+                                  gir.location.longitude,
                                   ip))
             except TypeError:
                 sys.stdout.write('No position for ' + raddr + '\n')
