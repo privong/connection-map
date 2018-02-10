@@ -25,6 +25,7 @@ import subprocess
 import socket
 import sys
 import argparse
+import re
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -37,7 +38,7 @@ def getArgs():
     Command line arguments
     """
 
-    parser=argparse.ArgumentParser(description="Get open connections, \
+    parser = argparse.ArgumentParser(description="Get open connections, \
 geolocate IP addresses, and make a map of the connection endpoints.")
 
     parser.add_argument('-4', '--ipv4', default=False, action='store_true',
@@ -51,7 +52,7 @@ geolocate IP addresses, and make a map of the connection endpoints.")
         # if nothing was specified, default to IPv4 only
         args.ipv4 = True
 
-    return(args)
+    return args
 
 
 def init():
@@ -111,21 +112,26 @@ def plot_connections(positions):
     fig.savefig('connection_map.png', bbox_inches='tight')
 
 
-def checkLocal(IP):
+def checkLocal(IP, iptype):
     """
-    Check to see if the IP address is in the IPv4 private blocks.
+    Check to see if the IP address is in the IPv4/IPv6 private blocks.
     Returns True if the address is local.
 
     """
 
-    ips = IP.split('.')
+    if iptype == 4:
+        ips = IP.split('.')
 
-    if int(ips[0]) == 10:
-        return True
-    elif int(ips[0]) == 192 and int(ips[1]) == 168:
-        return True
-    elif int(ips[0]) == 172 and (int(ips[1]) >= 16 and int(ips[1]) <= 31):
-        return True
+        if int(ips[0]) == 10:
+            return True
+        elif int(ips[0]) == 192 and int(ips[1]) == 168:
+            return True
+        elif int(ips[0]) == 172 and (int(ips[1]) >= 16 and int(ips[1]) <= 31):
+            return True
+    elif iptype == 6:
+        ips = IP.split(':')
+        if re.match('fd', ips[0][0:2], re.IGNORECASE):
+            return True
 
     return False
 
