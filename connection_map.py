@@ -155,6 +155,8 @@ def main():
     if args.ipv6:
         iplist.append(6)
 
+    positions = []
+
     for ip in iplist:
         gi = init(ip)
 
@@ -166,8 +168,7 @@ def main():
 
         conns = sockinfo.stdout.decode().split('\n')
 
-        positions = []
-
+        # skip the header line of ss
         first = True
 
         for conn in conns:
@@ -190,10 +191,10 @@ def main():
             except TypeError:
                 sys.stdout.write('No position for ' + raddr + '\n')
 
-        positions = np.array(positions,
-                             dtype=[('lat', float),
-                                    ('lon', float),
-                                    ('iptype', float)])
+    positions = np.array(positions,
+                         dtype=[('lat', float),
+                                ('lon', float),
+                                ('iptype', float)])
 
     plot_connections(positions)
 
