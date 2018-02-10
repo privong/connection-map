@@ -136,43 +136,51 @@ def main():
     """
 
     args = getArgs()
+    iplist = []
+    if args.ipv4:
+        iplist.append(4)
+    if args.ipv6:
+        iplist.append(6)
 
-    gi = init()
+    for ip in iplist:
+        gi = init(ip)
 
-    sockinfo = subprocess.run(['ss', '-4'],
-                              stdout=subprocess.PIPE)
+        sockinfo = subprocess.run(['ss', '-{0:1.0f}'.format(ip)],
+                                  stdout=subprocess.PIPE)
 
-    if sockinfo.returncode:
-        sys.stderr.write("There was a problem running 'ss -4'.\n")
+        if sockinfo.returncode:
+            sys.stderr.write("There was a problem running 'ss -{0:1.0f}'.\n".format(ip))
 
-    conns = sockinfo.stdout.decode().split('\n')
+        conns = sockinfo.stdout.decode().split('\n')
 
-    positions = []
+        positions = []
 
-    first = True
+        first = True
 
-    for conn in conns:
-        conn = conn.split()
-        if first:
-            first = False
-            continue
-        if len(conn) == 0:
-            continue
-        raddr = conn[-1].split(':')[0]
+        for conn in conns:
+            conn = conn.split()
+            if first:
+                first = False
+                continue
+            if len(conn) == 0:
+                continue
+            raddr = conn[-1].split(':')[0]
 
-        if checkLocal(raddr):
-            continue
+            if checkLocal(raddr, ip):
+                continue
 
-        gir = gi.record_by_addr(raddr)
-        try:
-            positions.append((gir['latitude'],
-                              gir['longitude']))
-        except TypeError:
-            sys.stdout.write('No position for ' + raddr + '\n')
+            gir = gi.record_by_addr(raddr)
+            try:
+                positions.append((gir['latitude'],
+                                  gir['longitude'],
+                                  ip))
+            except TypeError:
+                sys.stdout.write('No position for ' + raddr + '\n')
 
-    positions = np.array(positions,
-                         dtype=[('lat', float),
-                                ('lon', float)])
+        positions = np.array(positions,
+                             dtype=[('lat', float),
+                                    ('lon', float),
+                                    ('iptype', float)])
 
     plot_connections(positions)
 
