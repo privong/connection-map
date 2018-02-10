@@ -55,16 +55,12 @@ geolocate IP addresses, and make a map of the connection endpoints.")
     return args
 
 
-def init(ip):
+def init():
     """
     Initialiation routine
     """
 
-    if ip == 4:
-        gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
-    elif ip == 6:
-        # FIXME: this doesn't work for IPv6
-        gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
+    gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
 
     return gi
 
@@ -150,6 +146,9 @@ def main():
     """
 
     args = getArgs()
+
+    gi = init()
+
     iplist = []
     if args.ipv4:
         iplist.append(4)
@@ -159,7 +158,6 @@ def main():
     positions = []
 
     for ip in iplist:
-        gi = init(ip)
 
         sockinfo = subprocess.run(['ss', '-{0:1.0f}'.format(ip)],
                                   stdout=subprocess.PIPE)
@@ -179,21 +177,21 @@ def main():
                 continue
             if len(conn) == 0:
                 continue
-            raddr = conn[-1].split(':')[0]
+            if ip == 4:
+                raddr = conn[-1].split(':')[0]
+            elif ip == 6:
+                raddr = conn[-1].split(']')[0][1:]
 
             if checkLocal(raddr, ip):
                 continue
 
             try:
                 gir = gi.city(raddr)
-            except:
-                sys.stderr.write(raddr + " not found. skipping.\n")
-            try:
                 positions.append((gir.location.latitude,
                                   gir.location.longitude,
                                   ip))
-            except TypeError:
-                sys.stdout.write('No position for ' + raddr + '\n')
+            except:
+                sys.stderr.write(raddr + " not found. skipping.\n")
 
     positions = np.array(positions,
                          dtype=[('lat', float),
