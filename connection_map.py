@@ -102,14 +102,14 @@ def plot_connections(positions):
 
     ax.gridlines(draw_labels=True)
 
-    for ip in np.unique(positions['ip']):
-        valid = positions[ip] == ip
+    for ipType in np.unique(positions['iptype']):
+        valid = positions['iptype'] == ipType
         ax.scatter(positions['lon'][valid],
                    positions['lat'][valid],
                    marker='o',
                    transform=ccrs.PlateCarree(),
                    zorder=20,
-                   label='IPv{0:1.0f}'.format(ip))
+                   label='IPv{0:1.0f}'.format(ipType))
 
     ax.set_title(socket.gethostname() + ' connections',
                  fontsize='xx-large')
