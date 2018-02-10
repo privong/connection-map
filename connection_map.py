@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
-import GeoIP
+import geoip2.database as ipdb
 
 
 def init():
@@ -36,7 +36,7 @@ def init():
     Initialiation routine
     """
 
-    gi = GeoIP.open("/usr/share/GeoIP/GeoIPCity.dat", GeoIP.GEOIP_STANDARD)
+    gi = ipdb.Reader("/usr/share/GeoIP/GeoLite2-City.mmdb")
 
     return gi
 
@@ -138,10 +138,13 @@ def main():
         if checkLocal(raddr):
             continue
 
-        gir = gi.record_by_addr(raddr)
         try:
-            positions.append((gir['latitude'],
-                              gir['longitude']))
+            gir = gi.city(raddr)
+        except:
+            sys.stderr.write(raddr + " not found. skipping.\n")
+        try:
+            positions.append((gir.location.latitude,
+                              gir.location.longitude))
         except TypeError:
             sys.stdout.write('No position for ' + raddr + '\n')
 
