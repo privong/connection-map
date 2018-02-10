@@ -70,6 +70,9 @@ def plot_connections(positions):
     Map the locations of the various connections.
     """
 
+    # color for IPv4 and IPv6
+    colors = ['green', 'orange']
+
     fig = plt.figure(figsize=(16, 12))
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.coastlines()
@@ -100,10 +103,15 @@ def plot_connections(positions):
     ax.gridlines(draw_labels=True)
 
     for ipType in np.unique(positions['iptype']):
+        if ipType == 4:
+            color = colors[0]
+        elif ipType == 6:
+            color = colors[1]
         valid = positions['iptype'] == ipType
         ax.scatter(positions['lon'][valid],
                    positions['lat'][valid],
                    marker='o',
+                   color=color,
                    transform=ccrs.PlateCarree(),
                    zorder=20,
                    label='IPv{0:1.0f}'.format(ipType))
